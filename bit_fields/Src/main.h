@@ -77,4 +77,4 @@ typedef struct
 	uint32_t pin_15 	:1;
 	uint32_t REVERSER	:16;
 }GPIOX_ODR;
-#endif /* MAIN_H_ */
+#endif /* MAIN_H_ */sâsasasas
