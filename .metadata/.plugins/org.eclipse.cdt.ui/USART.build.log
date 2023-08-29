@@ -1,0 +1,59 @@
+20:29:26 **** Incremental Build of configuration Debug for project USART ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/usart.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -DUSE_FULL_LL_DRIVER -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/usart.d" -MT"Core/Src/usart.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/usart.o"
+../Core/Src/usart.c: In function 'send_data':
+../Core/Src/usart.c:178:3: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  178 |   memcpy(Databuffer,str,len);
+      |   ^~~~~~
+../Core/Src/usart.c:178:3: warning: incompatible implicit declaration of built-in function 'memcpy'
+../Core/Src/usart.c:22:1: note: include '<string.h>' or provide a declaration of 'memcpy'
+   21 | #include "usart.h"
+  +++ |+#include <string.h>
+   22 | 
+../Core/Src/usart.c:179:3: warning: implicit declaration of function 'USART_DMA_Trans' [-Wimplicit-function-declaration]
+  179 |   USART_DMA_Trans(Databuffer,len)
+      |   ^~~~~~~~~~~~~~~
+../Core/Src/usart.c:179:34: error: expected ';' before '}' token
+  179 |   USART_DMA_Trans(Databuffer,len)
+      |                                  ^
+      |                                  ;
+  180 | }
+      | ~                                 
+../Core/Src/usart.c: In function 'UART_RX_Data':
+../Core/Src/usart.c:183:3: warning: implicit declaration of function 'RX_DMA' [-Wimplicit-function-declaration]
+  183 |   RX_DMA();
+      |   ^~~~~~
+../Core/Src/usart.c: At top level:
+../Core/Src/usart.c:192:6: warning: conflicting types for 'USART_DMA_Trans'
+  192 | void USART_DMA_Trans(const char* user_buf, uint32_t  user_len )
+      |      ^~~~~~~~~~~~~~~
+../Core/Src/usart.c:179:3: note: previous implicit declaration of 'USART_DMA_Trans' was here
+  179 |   USART_DMA_Trans(Databuffer,len)
+      |   ^~~~~~~~~~~~~~~
+../Core/Src/usart.c:209:6: warning: conflicting types for 'RX_DMA'
+  209 | void RX_DMA()
+      |      ^~~~~~
+../Core/Src/usart.c:183:3: note: previous implicit declaration of 'RX_DMA' was here
+  183 |   RX_DMA();
+      |   ^~~~~~
+../Core/Src/usart.c: In function 'RX_DMA':
+../Core/Src/usart.c:213:48: warning: passing argument 3 of 'LL_DMA_SetMemoryAddress' makes integer from pointer without a cast [-Wint-conversion]
+  213 |   LL_DMA_SetMemoryAddress(DMA1,LL_DMA_STREAM_5,&RXbuffer);
+      |                                                ^~~~~~~~~
+      |                                                |
+      |                                                uint8_t (*)[128] {aka unsigned char (*)[128]}
+In file included from ../Core/Inc/main.h:40,
+                 from ../Core/Inc/usart.h:29,
+                 from ../Core/Src/usart.c:21:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:1436:91: note: expected 'uint32_t' {aka 'long unsigned int'} but argument is of type 'uint8_t (*)[128]' {aka 'unsigned char (*)[128]'}
+ 1436 | __STATIC_INLINE void LL_DMA_SetMemoryAddress(DMA_TypeDef* DMAx, uint32_t Stream, uint32_t MemoryAddress)
+      |                                                                                  ~~~~~~~~~^~~~~~~~~~~~~
+../Core/Src/usart.c:214:45: error: 'user_len' undeclared (first use in this function)
+  214 |   LL_DMA_SetDataLength(DMA1,LL_DMA_STREAM_5,user_len);
+      |                                             ^~~~~~~~
+../Core/Src/usart.c:214:45: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Core/Src/subdir.mk:43: Core/Src/usart.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+20:29:27 Build Failed. 3 errors, 7 warnings. (took 411ms)
+

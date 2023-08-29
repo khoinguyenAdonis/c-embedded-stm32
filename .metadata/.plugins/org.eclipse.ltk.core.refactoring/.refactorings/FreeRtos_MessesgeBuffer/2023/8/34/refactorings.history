@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;FreeRtos_MessesgeBuffer/Core/cmd_buffer&apos; to &apos;cmd_buffer.c&apos;" description="Rename resource &apos;cmd_buffer&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Core/cmd_buffer" name="cmd_buffer.c" stamp="1692884080212" updateReferences="true"/>
+</session>

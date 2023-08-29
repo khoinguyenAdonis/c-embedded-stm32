@@ -1,0 +1,21 @@
+23:45:35 **** Incremental Build of configuration Debug for project uart_001 ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:99:21: warning: variable 'st' set but not used [-Wunused-but-set-variable]
+   99 |   HAL_StatusTypeDef st;
+      |                     ^~
+arm-none-eabi-gcc -o "uart_001.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\uart_001\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="uart_001.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: uart_001.elf
+ 
+arm-none-eabi-size   uart_001.elf 
+arm-none-eabi-objdump -h -S  uart_001.elf  > "uart_001.list"
+   text	   data	    bss	    dec	    hex	filename
+  11176	     20	   1708	  12904	   3268	uart_001.elf
+Finished building: default.size.stdout
+ 
+Finished building: uart_001.list
+ 
+
+23:45:35 Build Finished. 0 errors, 1 warnings. (took 793ms)
+

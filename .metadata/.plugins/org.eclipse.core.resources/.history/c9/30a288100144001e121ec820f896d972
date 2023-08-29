@@ -1,0 +1,117 @@
+#include "cmd_buffer.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+#include "message_buffer.h"
+#include <string.h>
+#include "portmacro.h"
+#define STORAGE_SIZE_BYTES 512UL	// UL = unsegned long <=> 32 
+
+static uint8_t ucMessageBufferStorage[ STORAGE_SIZE_BYTES ];
+static StaticMessageBuffer_t xMessageBufferStruct;
+static MessageBufferHandle_t xMessageBuffer;
+
+
+void cmd_buffer_init(void)
+{
+	xMessageBuffer = xMessageBufferCreateStatic(
+                          sizeof(ucMessageBufferStorage),
+                          ucMessageBufferStorage,
+                         &xMessageBufferStruct );
+}
+// senddtata
+/*--------------------------------------------send_xbyte_buffer()---------------------------------*/
+
+void send_xbyte_buffer(const uint32_t* ucArrayToSend)
+{
+size_t xBytesSent;
+const TickType_t x100ms = pdMS_TO_TICKS( 100 );
+ /* Send an array to the message buffer, blocking for a maximum of 100ms to
+ wait for enough space to be available in the message buffer. */
+ xBytesSent = xMessageBufferSend( 
+                    xMessageBuffer,
+                    ( void * ) ucArrayToSend,
+                    sizeof( ucArrayToSend ),
+                    x100ms );
+ if( xBytesSent != sizeof( ucArrayToSend ) )
+ {
+ /* The call to xMessageBufferSend() times out before there was enough
+ space in the buffer for the data to be written. */
+ }
+}
+
+
+
+
+
+
+
+
+/*--------------------------------------------send_string_buffer---------------------------------*/
+void send_string_buffer(const char* pcStringToSend)
+{
+size_t xBytesSent;
+ /* Send an array to the message buffer, blocking for a maximum of 100ms to
+ wait for enough space to be available in the message buffer. */
+xBytesSent = xMessageBufferSend( xMessageBuffer,
+                                ( void * ) pcStringToSend,
+                                strlen( pcStringToSend ), 0 );
+
+ if( xBytesSent != strlen( pcStringToSend ) )
+ {
+ /* The string could not be added to the message buffer because there was
+ not enough free space in the buffer. */
+ }
+}
+
+
+
+
+
+/*--------------------------------------------xMessageBufferReceive()---------------------------------*/
+void received_messagebuffer( uint8_t* ucRxData)
+{
+size_t xReceivedBytes;
+const TickType_t xBlockTime = pdMS_TO_TICKS( 20 );
+if (xMessageBuffer == NULL){return;}
+ /* Receive the next message from the message buffer. Wait in the Blocked
+ state (so not using any CPU processing time) for a maximum of 100ms for
+ a message to become available. */
+ xReceivedBytes = xMessageBufferReceive( xMessageBuffer,
+                                        ( void * ) ucRxData,
+                                        sizeof( ucRxData ),
+                                        xBlockTime );
+ if( xReceivedBytes > 0 )
+ {
+ /* A ucRxData contains a message that is xReceivedBytes long. Process
+ the message here.... */
+ }
+}
+
+
+
+/*--------------------------------------------USED INTERRUP---------------------------------*/
+
+
+
+
+
+
+/*--------------------------------------------xMessageBufferSendFromISR()---------------------------------*/
+void Send_Data_Isr( const char* pcStringToSend )
+{
+size_t xBytesSent;
+BaseType_t xHigherPriorityTaskWoken = pdFALSE; /* Initialised to pdFALSE. */
+ /* Attempt to send the string to the message buffer. */
+ xBytesSent = xMessageBufferSendFromISR( xMessageBuffer,
+                                        ( void * ) pcStringToSend,
+                                        strlen( pcStringToSend ),
+          &xHigherPriorityTaskWoken );
+ if( xBytesSent != strlen( pcStringToSend ) )
+ {
+ /* The string could not be added to the message buffer because there was
+ not enough free space in the buffer. */
+ }
+ if(xHigherPriorityTaskWoken){taskYIELD();}
+
+}

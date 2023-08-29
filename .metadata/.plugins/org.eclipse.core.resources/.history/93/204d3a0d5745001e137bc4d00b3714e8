@@ -1,0 +1,584 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * File Name          : freertos.c
+  * Description        : Code for freertos applications
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
+#include "cmsis_os.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+#define MAKE_SHOPPING_CUSTOMER_FRAME(id,cont,hasScanner)	(id<<23  | cont <<1 | hasScanner)
+#define MAX_DELAY_TIMEOUT 							(0xFFFFFFFF)
+#define DEFAULT_SHOPPING_PERIOD 					(5*1000)
+#define DEFAULT_CONT_SHOPPING_PERIOD 				(2*1000)
+#define SECOND_TO_TICK(x)							(x*1000)
+#define SHOPPING_TIMER_EXPIRED_EVT 					(1)
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+/* USER CODE BEGIN Variables */
+	static volatile uint16_t id = 0;
+	static volatile uint16_t lastid = 0;
+	static volatile uint8_t emtryCart = 0;
+	uint32_t lastcurrenttime = 0;
+/* USER CODE END Variables */
+osThreadId defaultTaskHandle;
+uint32_t defaultTaskBuffer[ 128 ];
+osStaticThreadDef_t defaultTaskControlBlock;
+osThreadId scannerCheckOutHandle;
+uint32_t scannerCheckOutBuffer[ 256 ];
+osStaticThreadDef_t scannerCheckOutControlBlock;
+osThreadId scannerCheckOut1Handle;
+uint32_t scannerCheckOut1Buffer[ 256 ];
+osStaticThreadDef_t scannerCheckOut1ControlBlock;
+osThreadId shoppingtaskHandle;
+uint32_t shoppingtaskBuffer[ 256 ];
+osStaticThreadDef_t shoppingtaskControlBlock;
+osThreadId returnCardHandle;
+uint32_t returnCardBuffer[ 256 ];
+osStaticThreadDef_t returnCardControlBlock;
+osThreadId cashierTask01Handle;
+uint32_t cashierTask01Buffer[ 256 ];
+osStaticThreadDef_t cashierTask01ControlBlock;
+osThreadId cashierTask02Handle;
+uint32_t cashierTask02Buffer[ 256 ];
+osStaticThreadDef_t cashierTask02ControlBlock;
+osThreadId cashierTask03Handle;
+uint32_t cashierTask03Buffer[ 256 ];
+osStaticThreadDef_t cashierTask03ControlBlock;
+osMessageQId cashierQueue01Handle;
+uint8_t cashierQueue01Buffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t cashierQueue01ControlBlock;
+osMessageQId cashierQueue02Handle;
+uint8_t cashierQueue02Buffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t cashierQueue02ControlBlock;
+osMessageQId cashierQueue03Handle;
+uint8_t cashierQueue03Buffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t cashierQueue03ControlBlock;
+osMessageQId scannerTerm01Handle;
+uint8_t scannerTerm01Buffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t scannerTerm01ControlBlock;
+osMessageQId scannerTerm02Handle;
+uint8_t scannerTerm02Buffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t scannerTerm02ControlBlock;
+osMessageQId shoppingQueueHandle;
+uint8_t shoppingQueueBuffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t shoppingQueueControlBlock;
+osMessageQId returCashierHandle;
+uint8_t returCashierBuffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t returCashierControlBlock;
+osTimerId entryTmrHandle;
+osStaticTimerDef_t entryTmrControlBlock;
+osTimerId ShoppingChecktmrHandle;
+osStaticTimerDef_t myTimer02ControlBlock;
+osTimerId CashierTmr01Handle;
+osStaticTimerDef_t CashierTmr01ControlBlock;
+osTimerId CashierTmr02Handle;
+osStaticTimerDef_t CashierTmr02ControlBlock;
+osTimerId CashierTmr03Handle;
+osStaticTimerDef_t CashierTmr03ControlBlock;
+osTimerId scannerTmr01Handle;
+osStaticTimerDef_t scannerTmr01ControlBlock;
+osTimerId scannerTmr02Handle;
+osStaticTimerDef_t scannerTmr02ControlBlock;
+osTimerId returnCardTmrHandle;
+osStaticTimerDef_t returnCardTmrControlBlock;
+osSemaphoreId cartSemHandle;
+osStaticSemaphoreDef_t cartSemControlBlock;
+osSemaphoreId handheldScannerHandle;
+osStaticSemaphoreDef_t handheldScannerControlBlock;
+
+/* Private function prototypes -----------------------------------------------*/
+/* USER CODE BEGIN FunctionPrototypes */
+static void SetupEmtryTmr(void);
+static uint32_t ShoppingCalculateNextPeriod (uint32_t frame);
+static uint32_t ShoppingGetCurrentTime(void);
+static uint32_t ReturncalcNextPeriod(uint32_t currenttime);
+/* USER CODE END FunctionPrototypes */
+
+void DefaultTaskRun(void const * argument);
+void ScannerCheckOutRun(void const * argument);
+void ScannerCheckOut1Run(void const * argument);
+void ShoppingTaskRun(void const * argument);
+void ReturnCardRun(void const * argument);
+void CashierTask01Run(void const * argument);
+void CashierTask02Run(void const * argument);
+void CashierTask03Run(void const * argument);
+void entryTmrCb(void const * argument);
+void ShoppingChecktmrCb(void const * argument);
+void CashierTmr01Cb(void const * argument);
+void CashierTmr02Cb(void const * argument);
+void CashierTmr03CashierTmr02(void const * argument);
+void ScannerTmr01CB(void const * argument);
+void ScannerTmr02CB(void const * argument);
+void ReturnCardTmrCb(void const * argument);
+
+void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* GetIdleTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* GetTimerTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
+
+/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
+static StaticTask_t xIdleTaskTCBBuffer;
+static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
+
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
+{
+  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+  *ppxIdleTaskStackBuffer = &xIdleStack[0];
+  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+  /* place for user code */
+}
+/* USER CODE END GET_IDLE_TASK_MEMORY */
+
+/* USER CODE BEGIN GET_TIMER_TASK_MEMORY */
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
+
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
+{
+  *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
+  *ppxTimerTaskStackBuffer = &xTimerStack[0];
+  *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+  /* place for user code */
+}
+/* USER CODE END GET_TIMER_TASK_MEMORY */
+
+/**
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* definition and creation of cartSem */
+  osSemaphoreStaticDef(cartSem, &cartSemControlBlock);
+  cartSemHandle = osSemaphoreCreate(osSemaphore(cartSem), 20);
+
+  /* definition and creation of handheldScanner */
+  osSemaphoreStaticDef(handheldScanner, &handheldScannerControlBlock);
+  handheldScannerHandle = osSemaphoreCreate(osSemaphore(handheldScanner), 10);
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* Create the timer(s) */
+  /* definition and creation of entryTmr */
+  osTimerStaticDef(entryTmr, entryTmrCb, &entryTmrControlBlock);
+  entryTmrHandle = osTimerCreate(osTimer(entryTmr), osTimerPeriodic, NULL);
+
+  /* definition and creation of ShoppingChecktmr */
+  osTimerStaticDef(ShoppingChecktmr, ShoppingChecktmrCb, &myTimer02ControlBlock);
+  ShoppingChecktmrHandle = osTimerCreate(osTimer(ShoppingChecktmr), osTimerPeriodic, NULL);
+
+  /* definition and creation of CashierTmr01 */
+  osTimerStaticDef(CashierTmr01, CashierTmr01Cb, &CashierTmr01ControlBlock);
+  CashierTmr01Handle = osTimerCreate(osTimer(CashierTmr01), osTimerPeriodic, NULL);
+
+  /* definition and creation of CashierTmr02 */
+  osTimerStaticDef(CashierTmr02, CashierTmr02Cb, &CashierTmr02ControlBlock);
+  CashierTmr02Handle = osTimerCreate(osTimer(CashierTmr02), osTimerPeriodic, NULL);
+
+  /* definition and creation of CashierTmr03 */
+  osTimerStaticDef(CashierTmr03, CashierTmr03CashierTmr02, &CashierTmr03ControlBlock);
+  CashierTmr03Handle = osTimerCreate(osTimer(CashierTmr03), osTimerPeriodic, NULL);
+
+  /* definition and creation of scannerTmr01 */
+  osTimerStaticDef(scannerTmr01, ScannerTmr01CB, &scannerTmr01ControlBlock);
+  scannerTmr01Handle = osTimerCreate(osTimer(scannerTmr01), osTimerPeriodic, NULL);
+
+  /* definition and creation of scannerTmr02 */
+  osTimerStaticDef(scannerTmr02, ScannerTmr02CB, &scannerTmr02ControlBlock);
+  scannerTmr02Handle = osTimerCreate(osTimer(scannerTmr02), osTimerPeriodic, NULL);
+
+  /* definition and creation of returnCardTmr */
+  osTimerStaticDef(returnCardTmr, ReturnCardTmrCb, &returnCardTmrControlBlock);
+  returnCardTmrHandle = osTimerCreate(osTimer(returnCardTmr), osTimerPeriodic, NULL);
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* Create the queue(s) */
+  /* definition and creation of cashierQueue01 */
+  osMessageQStaticDef(cashierQueue01, 64, uint32_t, cashierQueue01Buffer, &cashierQueue01ControlBlock);
+  cashierQueue01Handle = osMessageCreate(osMessageQ(cashierQueue01), NULL);
+
+  /* definition and creation of cashierQueue02 */
+  osMessageQStaticDef(cashierQueue02, 64, uint32_t, cashierQueue02Buffer, &cashierQueue02ControlBlock);
+  cashierQueue02Handle = osMessageCreate(osMessageQ(cashierQueue02), NULL);
+
+  /* definition and creation of cashierQueue03 */
+  osMessageQStaticDef(cashierQueue03, 64, uint32_t, cashierQueue03Buffer, &cashierQueue03ControlBlock);
+  cashierQueue03Handle = osMessageCreate(osMessageQ(cashierQueue03), NULL);
+
+  /* definition and creation of scannerTerm01 */
+  osMessageQStaticDef(scannerTerm01, 64, uint32_t, scannerTerm01Buffer, &scannerTerm01ControlBlock);
+  scannerTerm01Handle = osMessageCreate(osMessageQ(scannerTerm01), NULL);
+
+  /* definition and creation of scannerTerm02 */
+  osMessageQStaticDef(scannerTerm02, 64, uint32_t, scannerTerm02Buffer, &scannerTerm02ControlBlock);
+  scannerTerm02Handle = osMessageCreate(osMessageQ(scannerTerm02), NULL);
+
+  /* definition and creation of shoppingQueue */
+  osMessageQStaticDef(shoppingQueue, 64, uint32_t, shoppingQueueBuffer, &shoppingQueueControlBlock);
+  shoppingQueueHandle = osMessageCreate(osMessageQ(shoppingQueue), NULL);
+
+  /* definition and creation of returCashier */
+  osMessageQStaticDef(returCashier, 64, uint32_t, returCashierBuffer, &returCashierControlBlock);
+  returCashierHandle = osMessageCreate(osMessageQ(returCashier), NULL);
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  osThreadStaticDef(defaultTask, DefaultTaskRun, osPriorityNormal, 0, 128, defaultTaskBuffer, &defaultTaskControlBlock);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of scannerCheckOut */
+  osThreadStaticDef(scannerCheckOut, ScannerCheckOutRun, osPriorityIdle, 0, 256, scannerCheckOutBuffer, &scannerCheckOutControlBlock);
+  scannerCheckOutHandle = osThreadCreate(osThread(scannerCheckOut), NULL);
+
+  /* definition and creation of scannerCheckOut1 */
+  osThreadStaticDef(scannerCheckOut1, ScannerCheckOut1Run, osPriorityIdle, 0, 256, scannerCheckOut1Buffer, &scannerCheckOut1ControlBlock);
+  scannerCheckOut1Handle = osThreadCreate(osThread(scannerCheckOut1), NULL);
+
+  /* definition and creation of shoppingtask */
+  osThreadStaticDef(shoppingtask, ShoppingTaskRun, osPriorityIdle, 0, 256, shoppingtaskBuffer, &shoppingtaskControlBlock);
+  shoppingtaskHandle = osThreadCreate(osThread(shoppingtask), NULL);
+
+  /* definition and creation of returnCard */
+  osThreadStaticDef(returnCard, ReturnCardRun, osPriorityIdle, 0, 256, returnCardBuffer, &returnCardControlBlock);
+  returnCardHandle = osThreadCreate(osThread(returnCard), NULL);
+
+  /* definition and creation of cashierTask01 */
+  osThreadStaticDef(cashierTask01, CashierTask01Run, osPriorityIdle, 0, 256, cashierTask01Buffer, &cashierTask01ControlBlock);
+  cashierTask01Handle = osThreadCreate(osThread(cashierTask01), NULL);
+
+  /* definition and creation of cashierTask02 */
+  osThreadStaticDef(cashierTask02, CashierTask02Run, osPriorityIdle, 0, 256, cashierTask02Buffer, &cashierTask02ControlBlock);
+  cashierTask02Handle = osThreadCreate(osThread(cashierTask02), NULL);
+
+  /* definition and creation of cashierTask03 */
+  osThreadStaticDef(cashierTask03, CashierTask03Run, osPriorityIdle, 0, 256, cashierTask03Buffer, &cashierTask03ControlBlock);
+  cashierTask03Handle = osThreadCreate(osThread(cashierTask03), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+}
+
+/* USER CODE BEGIN Header_DefaultTaskRun */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_DefaultTaskRun */
+void DefaultTaskRun(void const * argument)
+{
+  /* USER CODE BEGIN DefaultTaskRun */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END DefaultTaskRun */
+}
+
+/* USER CODE BEGIN Header_ScannerCheckOutRun */
+/**
+* @brief Function implementing the scannerCheckOut thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ScannerCheckOutRun */
+void ScannerCheckOutRun(void const * argument)
+{
+  /* USER CODE BEGIN ScannerCheckOutRun */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END ScannerCheckOutRun */
+}
+
+/* USER CODE BEGIN Header_ScannerCheckOut1Run */
+/**
+* @brief Function implementing the scannerCheckOut1 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ScannerCheckOut1Run */
+void ScannerCheckOut1Run(void const * argument)
+{
+  /* USER CODE BEGIN ScannerCheckOut1Run */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END ScannerCheckOut1Run */
+}
+
+/* USER CODE BEGIN Header_ShoppingTaskRun */
+
+
+/* USER CODE END Header_ShoppingTaskRun */
+void ShoppingTaskRun(void const * argument)
+{
+  /* USER CODE BEGIN ShoppingTaskRun */
+	osEvent evt ={0};
+	uint32_t shoppingPeriod = DEFAULT_SHOPPING_PERIOD;
+	SetupEmtryTmr();
+  /* Infinite loop */
+  for(;;)
+  {
+  /*get item from shopping queue */
+	  evt = osMessageGet(shoppingQueueHandle, MAX_DELAY_TIMEOUT);
+	  shoppingPeriod = ShoppingCalculateNextPeriod(evt.value.v);
+	  osTimerStart(ShoppingChecktmrHandle, shoppingPeriod);
+	  // wait shopping finish
+	  osSignalWait(SHOPPING_TIMER_EXPIRED_EVT, millisec), osWaitForever)
+  }
+  /* USER CODE END ShoppingTaskRun */
+}
+
+/* USER CODE BEGIN Header_ReturnCardRun */
+/**
+* @brief Function implementing the returnCard thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ReturnCardRun */
+void ReturnCardRun(void const * argument)
+{
+  /* USER CODE BEGIN ReturnCardRun */
+	osEvent evt;
+	uint32_t retPeriod = 0;
+  /* Infinite loop */
+  for(;;)
+  {
+  evt =  osMessageGet(cashierQueue01Handle, MAX_DELAY_TIMEOUT);
+    retPeriod = ReturncalcNextPeriod(evt.value.v);
+    osTimerStart(returnCardTmrHandle, retPeriod);
+  }
+  /* USER CODE END ReturnCardRun */
+}
+
+/* USER CODE BEGIN Header_CashierTask01Run */
+/**
+* @brief Function implementing the cashierTask01 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_CashierTask01Run */
+void CashierTask01Run(void const * argument)
+{
+  /* USER CODE BEGIN CashierTask01Run */
+	osEvent evt = {0};
+  /* Infinite loop */
+  for(;;)
+  {
+   evt = osMessageGet(cashierQueue01Handle, MAX_DELAY_TIMEOUT);
+   osTimerStart(CashierTmr01Handle, SECOND_TO_TICK(CASHIER_CHECKOUT_TIME));
+  }
+  /* USER CODE END CashierTask01Run */
+}
+
+/* USER CODE BEGIN Header_CashierTask02Run */
+/**
+* @brief Function implementing the cashierTask02 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_CashierTask02Run */
+void CashierTask02Run(void const * argument)
+{
+  /* USER CODE BEGIN CashierTask02Run */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END CashierTask02Run */
+}
+
+/* USER CODE BEGIN Header_CashierTask03Run */
+/**
+* @brief Function implementing the cashierTask03 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_CashierTask03Run */
+void CashierTask03Run(void const * argument)
+{
+  /* USER CODE BEGIN CashierTask03Run */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END CashierTask03Run */
+}
+
+/* entryTmrCb function */
+void entryTmrCb(void const * argument)
+{
+  /* USER CODE BEGIN entryTmrCb */
+  /*B1.task carts*/
+	uint32_t remain_token = 0;
+	uint32_t data_frame = 0;
+	uint8_t hasScanner = 0;
+	uint8_t cont = 0;
+	id++;
+	osSemaphoreId sem = *((osSemaphoreId*)argument);
+	remain_token = osSemaphoreWait(sem, 0);
+	if (remain_token <= 0 )
+	{
+		emtryCart = 1;
+		return;
+	}
+
+  /*B2.Push to queue shopping*/
+	data_frame = MAKE_SHOPPING_CUSTOMER_FRAME(id,emtryCart,hasScanner);
+	osMessagePut(shoppingQueueHandle, data_frame, 0);
+	emtryCart = 0;
+  /* USER CODE END entryTmrCb */
+}
+
+/* ShoppingChecktmrCb function */
+void ShoppingChecktmrCb(void const * argument)
+{
+  /* USER CODE BEGIN ShoppingChecktmrCb */
+	uint32_t timestap = ShoppingGetCurrentTime();
+	osMessagePut(cashierQueue01Handle, timestap, 0);
+	osTimerStop(ShoppingChecktmrHandle);
+  /* USER CODE END ShoppingChecktmrCb */
+}
+
+/* CashierTmr01Cb function */
+void CashierTmr01Cb(void const * argument)
+{
+  /* USER CODE BEGIN CashierTmr01Cb */
+	uint32_t timestap = ShoppingGetCurrentTime();
+	osMessagePut(returCashierHandle, timestap, 0);
+	osSignalSet(shoppingtaskHandle, SHOPPING_TIMER_EXPIRED_EVT);
+  /* USER CODE END CashierTmr01Cb */
+}
+
+/* CashierTmr02Cb function */
+void CashierTmr02Cb(void const * argument)
+{
+  /* USER CODE BEGIN CashierTmr02Cb */
+
+  /* USER CODE END CashierTmr02Cb */
+}
+
+/* CashierTmr03CashierTmr02 function */
+void CashierTmr03CashierTmr02(void const * argument)
+{
+  /* USER CODE BEGIN CashierTmr03CashierTmr02 */
+
+  /* USER CODE END CashierTmr03CashierTmr02 */
+}
+
+/* ScannerTmr01CB function */
+void ScannerTmr01CB(void const * argument)
+{
+  /* USER CODE BEGIN ScannerTmr01CB */
+
+  /* USER CODE END ScannerTmr01CB */
+}
+
+/* ScannerTmr02CB function */
+void ScannerTmr02CB(void const * argument)
+{
+  /* USER CODE BEGIN ScannerTmr02CB */
+
+  /* USER CODE END ScannerTmr02CB */
+}
+
+/* ReturnCardTmrCb function */
+void ReturnCardTmrCb(void const * argument)
+{
+	osSemaphoreId semf = *((osSemaphoreId*)argument);
+  /* USER CODE BEGIN ReturnCardTmrCb */
+	osSemaphoreRelease(semf);
+  /* USER CODE END ReturnCardTmrCb */
+}
+
+/* Private application code --------------------------------------------------*/
+/* USER CODE BEGIN Application */
+static void SetupEmtryTmr(void)
+{
+	osTimerStart(entryTmrHandle, SECOND_TO_TICK(ENTRY_PERIOD));
+}
+static uint32_t ShoppingCalculateNextPeriod (uint32_t frame)
+{
+	return (frame & 0x2)?DEFAULT_SHOPPING_PERIOD:DEFAULT_CONT_SHOPPING_PERIOD;
+}
+static uint32_t ShoppingGetCurrentTime(void)
+{
+	// get tick
+	return xTaskGetTickCount();
+}
+static uint32_t ReturncalcNextPeriod(uint32_t currenttime)
+{
+	uint32_t period = currentime - lastcurrenttime;
+	if (period >=SECOND_TO_TICK(RETURN_CART_TIME) ){
+		return SECOND_TO_TICK(RETURN_CART_TIME);
+	}
+
+	return period;
+}
+/* USER CODE END Application */

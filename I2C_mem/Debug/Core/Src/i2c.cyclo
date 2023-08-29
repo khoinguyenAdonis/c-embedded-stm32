@@ -1,0 +1,9 @@
+i2c.c:31:6:MX_I2C1_Init	2
+i2c.c:60:6:MX_I2C2_Init	2
+i2c.c:89:6:HAL_I2C_MspInit	3
+i2c.c:155:6:HAL_I2C_MspDeInit	3
+i2c.c:216:13:Bh1570_On	1
+i2c.c:223:7:send_cmd	2
+i2c.c:231:13:read_const_measurement	2
+i2c.c:238:10:Read_Data	1
+i2c.c:244:6:unit_test	1

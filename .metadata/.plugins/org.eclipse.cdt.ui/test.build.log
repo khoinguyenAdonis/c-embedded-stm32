@@ -1,0 +1,30 @@
+13:39:53 **** Incremental Build of configuration Debug for project test ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:92:28: warning: passing argument 2 of 'HAL_SPI_Transmit' makes pointer from integer without a cast [-Wint-conversion]
+   92 |   HAL_SPI_Transmit(&hspi1, data, 1, 1000);
+      |                            ^~~~
+      |                            |
+      |                            uint32_t {aka long unsigned int}
+In file included from ../Core/Inc/stm32f4xx_hal_conf.h:403,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/main.c:20:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h:670:70: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t' {aka 'long unsigned int'}
+  670 | HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+      |                                                             ~~~~~~~~~^~~~~
+arm-none-eabi-gcc -o "test.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\test\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: test.elf
+ 
+arm-none-eabi-size   test.elf 
+arm-none-eabi-objdump -h -S  test.elf  > "test.list"
+   text	   data	    bss	    dec	    hex	filename
+   7144	     24	   1656	   8824	   2278	test.elf
+Finished building: default.size.stdout
+ 
+Finished building: test.list
+ 
+
+13:39:54 Build Finished. 0 errors, 1 warnings. (took 729ms)
+

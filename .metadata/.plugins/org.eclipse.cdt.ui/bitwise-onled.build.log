@@ -1,0 +1,10 @@
+10:58:23 **** Incremental Build of configuration Debug for project bitwise-onled ****
+make -j8 all 
+arm-none-eabi-size   bitwise-onled.elf 
+   text	   data	    bss	    dec	    hex	filename
+    920	     12	   1572	   2504	    9c8	bitwise-onled.elf
+Finished building: default.size.stdout
+ 
+
+10:58:23 Build Finished. 0 errors, 0 warnings. (took 288ms)
+

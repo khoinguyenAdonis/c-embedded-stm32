@@ -1,0 +1,43 @@
+20:06:47 **** Incremental Build of configuration Debug for project FreeRtos_Queu_Timer ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/freertos.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/freertos.d" -MT"Core/Src/freertos.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/freertos.o"
+../Core/Src/freertos.c: In function 'QueueProducerRun':
+../Core/Src/freertos.c:198:37: warning: assignment to 'uint8_t' {aka 'unsigned char'} from 'char *' makes integer from pointer without a cast [-Wint-conversion]
+  198 |    stranmitcustomer.has_scanner[10] = "ok";
+      |                                     ^
+../Core/Src/freertos.c: In function 'QueuCustomerRun':
+../Core/Src/freertos.c:240:2: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  240 |  memcpy(&recvcustomer,ret.value.v,sizeof(TestQueueStruct_t));
+      |  ^~~~~~
+../Core/Src/freertos.c:240:2: warning: incompatible implicit declaration of built-in function 'memcpy'
+../Core/Src/freertos.c:25:1: note: include '<string.h>' or provide a declaration of 'memcpy'
+   24 | #include "cmsis_os.h"
+  +++ |+#include <string.h>
+   25 | 
+../Core/Src/freertos.c:240:32: warning: passing argument 2 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+  240 |  memcpy(&recvcustomer,ret.value.v,sizeof(TestQueueStruct_t));
+      |                       ~~~~~~~~~^~
+      |                                |
+      |                                uint32_t {aka long unsigned int}
+../Core/Src/freertos.c:240:32: note: expected 'const void *' but argument is of type 'uint32_t' {aka 'long unsigned int'}
+At top level:
+../Core/Src/freertos.c:58:17: warning: 'recv' defined but not used [-Wunused-variable]
+   58 | static uint32_t recv = 0;
+      |                 ^~~~
+../Core/Src/freertos.c:57:17: warning: 'data' defined but not used [-Wunused-variable]
+   57 | static uint32_t data = 5;
+      |                 ^~~~
+arm-none-eabi-gcc -o "FreeRtos_Queu_Timer.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\FreeRtos_Queu_Timer\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FreeRtos_Queu_Timer.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: FreeRtos_Queu_Timer.elf
+ 
+arm-none-eabi-size   FreeRtos_Queu_Timer.elf 
+arm-none-eabi-objdump -h -S  FreeRtos_Queu_Timer.elf  > "FreeRtos_Queu_Timer.list"
+   text	   data	    bss	    dec	    hex	filename
+  19264	     24	  32496	  51784	   ca48	FreeRtos_Queu_Timer.elf
+Finished building: default.size.stdout
+ 
+Finished building: FreeRtos_Queu_Timer.list
+ 
+
+20:06:48 Build Finished. 0 errors, 6 warnings. (took 909ms)
+

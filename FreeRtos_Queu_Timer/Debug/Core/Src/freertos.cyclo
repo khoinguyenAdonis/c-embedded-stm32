@@ -1,0 +1,6 @@
+freertos.c:93:6:vApplicationGetIdleTaskMemory	1
+freertos.c:106:6:vApplicationGetTimerTaskMemory	1
+freertos.c:120:6:MX_FREERTOS_Init	1
+freertos.c:174:6:QueueProducerRun	1
+freertos.c:213:6:QueuCustomerRun	1
+freertos.c:248:6:Callback01	1

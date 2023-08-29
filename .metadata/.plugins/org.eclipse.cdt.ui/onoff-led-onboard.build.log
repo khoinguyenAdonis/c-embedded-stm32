@@ -1,0 +1,10 @@
+10:59:09 **** Incremental Build of configuration Debug for project onoff-led-onboard ****
+make -j8 all 
+arm-none-eabi-size   onoff-led-onboard.elf 
+   text	   data	    bss	    dec	    hex	filename
+    760	      8	   1568	   2336	    920	onoff-led-onboard.elf
+Finished building: default.size.stdout
+ 
+
+10:59:09 Build Finished. 0 errors, 0 warnings. (took 155ms)
+

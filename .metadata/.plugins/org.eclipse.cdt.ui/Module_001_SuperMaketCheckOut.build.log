@@ -1,0 +1,25 @@
+11:19:52 **** Incremental Build of configuration Debug for project Module_001_SuperMaketCheckOut ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/freertos.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/freertos.d" -MT"Core/Src/freertos.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/freertos.o"
+../Core/Src/freertos.c: In function 'CashierTask01Run':
+../Core/Src/freertos.c:428:10: warning: variable 'evt' set but not used [-Wunused-but-set-variable]
+  428 |  osEvent evt = {0};
+      |          ^~~
+../Core/Src/freertos.c: In function 'entryTmrCb':
+../Core/Src/freertos.c:482:10: warning: unused variable 'cont' [-Wunused-variable]
+  482 |  uint8_t cont = 0;
+      |          ^~~~
+arm-none-eabi-gcc -o "Module_001_SuperMaketCheckOut.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\Module_001_SuperMaketCheckOut\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Module_001_SuperMaketCheckOut.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Module_001_SuperMaketCheckOut.elf
+ 
+arm-none-eabi-size   Module_001_SuperMaketCheckOut.elf 
+arm-none-eabi-objdump -h -S  Module_001_SuperMaketCheckOut.elf  > "Module_001_SuperMaketCheckOut.list"
+   text	   data	    bss	    dec	    hex	filename
+  22852	     24	  26784	  49660	   c1fc	Module_001_SuperMaketCheckOut.elf
+Finished building: default.size.stdout
+ 
+Finished building: Module_001_SuperMaketCheckOut.list
+ 
+
+11:19:56 Build Finished. 0 errors, 2 warnings. (took 4s.705ms)
+

@@ -1,0 +1,19 @@
+#include "cmd_buffer.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+#include "message_buffer.h"
+#define STORAGE_SIZE_BYTES 512UL	// UL = unsegned long <=> 32 
+
+static uint8_t ucMessageBufferStorage[ STORAGE_SIZE_BYTES ];
+static staticMessageBuffer_t xMessageBufferStruct;
+static MessageBufferHandle_t xMessageBuffer;
+
+
+void cmd_buffer_init(void)
+{
+	xMessageBuffer = xMessageBufferCreateStatic(
+                          sizeof(ucMessageBufferStorage),
+                          ucMessageBufferStorage,
+                         &xMessageBufferStruct );
+}

@@ -1,0 +1,62 @@
+10:44:25 **** Incremental Build of configuration Debug for project debouncing ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -DUSE_FULL_LL_DRIVER -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+In file included from ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:132,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:29,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:27,
+                 from ../Core/Inc/stm32f4xx_hal_conf.h:275,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/stm32f4xx_it.c:21:
+../Core/Src/stm32f4xx_it.c: In function 'EXTI0_IRQHandler':
+../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:1059:29: warning: passing argument 1 of 'LL_EXTI_DisableIT_0_31' makes integer from pointer without a cast [-Wint-conversion]
+ 1059 | #define TIM4                ((TIM_TypeDef *) TIM4_BASE)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             TIM_TypeDef *
+../Core/Src/stm32f4xx_it.c:207:26: note: in expansion of macro 'TIM4'
+  207 |   LL_EXTI_DisableIT_0_31(TIM4);
+      |                          ^~~~
+In file included from ../Core/Inc/main.h:35,
+                 from ../Core/Src/stm32f4xx_it.c:21:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:309:54: note: expected 'uint32_t' {aka 'long unsigned int'} but argument is of type 'TIM_TypeDef *'
+  309 | __STATIC_INLINE void LL_EXTI_DisableIT_0_31(uint32_t ExtiLine)
+      |                                             ~~~~~~~~~^~~~~~~~
+../Core/Src/stm32f4xx_it.c:215:3: warning: implicit declaration of function 'debouncing' [-Wimplicit-function-declaration]
+  215 |   debouncing();
+      |   ^~~~~~~~~~
+In file included from ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:132,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:29,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:27,
+                 from ../Core/Inc/stm32f4xx_hal_conf.h:275,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/stm32f4xx_it.c:21:
+../Core/Src/stm32f4xx_it.c: In function 'TIM4_IRQHandler':
+../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:1059:29: warning: passing argument 1 of 'LL_EXTI_IsEnabledIT_0_31' makes integer from pointer without a cast [-Wint-conversion]
+ 1059 | #define TIM4                ((TIM_TypeDef *) TIM4_BASE)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             TIM_TypeDef *
+../Core/Src/stm32f4xx_it.c:233:32: note: in expansion of macro 'TIM4'
+  233 |       LL_EXTI_IsEnabledIT_0_31(TIM4);
+      |                                ^~~~
+In file included from ../Core/Inc/main.h:35,
+                 from ../Core/Src/stm32f4xx_it.c:21:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:351:60: note: expected 'uint32_t' {aka 'long unsigned int'} but argument is of type 'TIM_TypeDef *'
+  351 | __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_0_31(uint32_t ExtiLine)
+      |                                                   ~~~~~~~~~^~~~~~~~
+arm-none-eabi-gcc -o "debouncing.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\debouncing\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="debouncing.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: debouncing.elf
+ 
+arm-none-eabi-size   debouncing.elf 
+arm-none-eabi-objdump -h -S  debouncing.elf  > "debouncing.list"
+   text	   data	    bss	    dec	    hex	filename
+   7812	     20	   1572	   9404	   24bc	debouncing.elf
+Finished building: default.size.stdout
+ 
+Finished building: debouncing.list
+ 
+
+10:44:26 Build Finished. 0 errors, 3 warnings. (took 856ms)
+

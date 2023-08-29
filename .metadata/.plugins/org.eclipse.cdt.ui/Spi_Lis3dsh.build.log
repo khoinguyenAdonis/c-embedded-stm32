@@ -1,0 +1,17 @@
+12:21:15 **** Incremental Build of configuration Debug for project Spi_Lis3dsh ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -DUSE_FULL_LL_DRIVER -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "Spi_Lis3dsh.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\Spi_Lis3dsh\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Spi_Lis3dsh.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Spi_Lis3dsh.elf
+ 
+arm-none-eabi-size   Spi_Lis3dsh.elf 
+arm-none-eabi-objdump -h -S  Spi_Lis3dsh.elf  > "Spi_Lis3dsh.list"
+   text	   data	    bss	    dec	    hex	filename
+   7776	     20	   1580	   9376	   24a0	Spi_Lis3dsh.elf
+Finished building: default.size.stdout
+ 
+Finished building: Spi_Lis3dsh.list
+ 
+
+12:21:16 Build Finished. 0 errors, 0 warnings. (took 784ms)
+

@@ -1,0 +1,6 @@
+freertos.c:77:6:vApplicationGetIdleTaskMemory	1
+freertos.c:90:6:vApplicationGetTimerTaskMemory	1
+freertos.c:104:6:MX_FREERTOS_Init	1
+freertos.c:158:6:StartDefaultTask	1
+freertos.c:176:6:Callback01	1
+freertos.c:185:6:StartMonitorTask	2

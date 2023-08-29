@@ -1,0 +1,17 @@
+21:37:36 **** Incremental Build of configuration Debug for project timer-interrup ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/tim.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -DUSE_FULL_LL_DRIVER -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/tim.d" -MT"Core/Src/tim.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/tim.o"
+arm-none-eabi-gcc -o "timer-interrup.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\timer-interrup\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="timer-interrup.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: timer-interrup.elf
+ 
+arm-none-eabi-size   timer-interrup.elf 
+arm-none-eabi-objdump -h -S  timer-interrup.elf  > "timer-interrup.list"
+   text	   data	    bss	    dec	    hex	filename
+   7064	     20	   1572	   8656	   21d0	timer-interrup.elf
+Finished building: default.size.stdout
+ 
+Finished building: timer-interrup.list
+ 
+
+21:37:37 Build Finished. 0 errors, 0 warnings. (took 869ms)
+

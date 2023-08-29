@@ -1,0 +1,17 @@
+22:28:09 **** Build of configuration Debug for project bit_fields ****
+make -j8 all 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DSTM32 -DSTM32F4 -DSTM32F407VETx -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc -o "bit_fields.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\c\c embedded stm32\bit_fields\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bit_fields.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bit_fields.elf
+ 
+arm-none-eabi-size   bit_fields.elf 
+arm-none-eabi-objdump -h -S  bit_fields.elf  > "bit_fields.list"
+   text	   data	    bss	    dec	    hex	filename
+    752	      8	   1568	   2328	    918	bit_fields.elf
+Finished building: default.size.stdout
+ 
+Finished building: bit_fields.list
+ 
+
+22:28:11 Build Finished. 0 errors, 0 warnings. (took 2s.188ms)
+

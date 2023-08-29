@@ -1,0 +1,15 @@
+/*
+ * cmd_buffer.h
+ *
+ *  Created on: Aug 24, 2023
+ *      Author: khoi7
+ */
+
+#ifndef CMD_BUFFER_H_
+#define CMD_BUFFER_H_
+
+void cmd_buffer_init(void);
+void received_messagebuffer( xMessageBuffer );
+void send_xbyte_buffer(xMessageBuffer,ucArrayToSend);
+void send_string_buffer(xMessageBuffer,pcStringToSend);
+#endif /* CMD_BUFFER_H_ */

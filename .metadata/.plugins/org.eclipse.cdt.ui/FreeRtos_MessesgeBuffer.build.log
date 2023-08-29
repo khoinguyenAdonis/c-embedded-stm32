@@ -1,0 +1,10 @@
+22:17:12 **** Incremental Build of configuration Debug for project FreeRtos_MessesgeBuffer ****
+make -j8 all 
+arm-none-eabi-size   FreeRtos_MessesgeBuffer.elf 
+   text	   data	    bss	    dec	    hex	filename
+  15320	     32	  15696	  31048	   7948	FreeRtos_MessesgeBuffer.elf
+Finished building: default.size.stdout
+ 
+
+22:17:13 Build Finished. 0 errors, 0 warnings. (took 421ms)
+

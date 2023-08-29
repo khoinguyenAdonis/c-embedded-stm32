@@ -1,0 +1,4 @@
+../Core/Src/freertos.c:72:6:vApplicationGetIdleTaskMemory	24	static
+../Core/Src/freertos.c:86:6:MX_FREERTOS_Init	80	static
+../Core/Src/freertos.c:135:6:StartDefaultTask	24	static
+../Core/Src/freertos.c:156:6:BlinkledRun	24	static,ignoring_inline_asm
